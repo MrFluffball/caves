@@ -23,8 +23,8 @@ class Sprite {
     this.w = w
     this.h = h
 
-    this.draw = function() {
-      ctx.drawImage(img, this.x, this.y, this.w, this.h)
+    this.draw = function(x,y) {
+      ctx.drawImage(img, x, y, this.w, this.h)
     }
     this.drawRotated = function(degrees){
       // save the unrotated context of the canvas so we can restore it later
@@ -43,7 +43,7 @@ class Sprite {
 let floorSprite = document.getElementById("floor")
 let wallSprite = document.getElementById("wall")
 
-var tilesize = 15
+var tilesize = 25
 /*
 class Tile {
   constructor(x, y) {

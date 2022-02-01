@@ -1,22 +1,12 @@
-let initialchance = 0.45
-let numberofsteps = 8
-
-let aliveLimit = 4
-let deathLimit = 4
-
+let initialchance = 0.50
+let numberofsteps = 12
 
 // NOTE: In this code, a Floor is considered "dead", while likewise a wall tile is "alive"
-/*
-First, the map is filled in randomly with walls and air, then for each wall or air,
-you check how many of its neighbours are walls. If the current tile is a wall,
-and there are at least 4 other walls around it,
-then it stays the same, otherwise it turns into air. If it's air and has at least 5 wall neighbours,
-then it becomes a wall, otherwise it stays air.*/
+
 
 function isOnBorder(x, y, map) {
   return (x == 0 || y == 0 || x == map.w-1 || y == map.h-1)
 }
-
 function isWall(x,y,map) {
   return map.arr[x][y] instanceof Wall
 }
@@ -30,10 +20,10 @@ function setFloor(x,y,map) {
   map[x][y] = new Floor(tilesize*x,tilesize*y)
 }
 
-function generateNoiseMap(w, h, chanceOfWall) {
+function generateNoiseMap(width, height, chanceOfWall) {
   var arr = [[]]
-  for (var i=0; i<h; i++) {
-    for (var j=0; j<w; j++) {
+  for (var i=0; i<width; i++) {
+    for (var j=0; j<height; j++) {
       if (Math.random() < chanceOfWall) {
         arr[i].push(new Wall(tilesize*j,tilesize*i))
       } else {
@@ -45,7 +35,6 @@ function generateNoiseMap(w, h, chanceOfWall) {
   return arr
 }
 
-let coordinates = [[0,1], [0,-1], [1,0], [-1,0], [1,1], [1,-1], [-1,1], [-1,-1]]
 
 class Map {
   constructor(w,h) {
@@ -61,7 +50,13 @@ class Map {
       })
     })
   }
+
+  getTile(x,y) {
+    return this.arr[x][y]
+  }
 }
+
+let coordinates = [[0,1], [0,-1], [1,0], [-1,0], [1,1], [1,-1], [-1,1], [-1,-1]]
 
 
 function outOfBounds(x,y,map) { // returns if the position is within the map
@@ -87,43 +82,48 @@ function countAliveNeighbours(x, y, map) { // returns the number of alive cells 
 }
 
 function doSimulationStep(map) {
-  // Make a new map (a cloned version of the current one) to copy the new cells onto
-  var newMap = map.arr
+  // numWallNeighbors is an array storing the amount of walls around each point in the map.
+  // numWallNeighbors[x][y] is the number of walls in the current location
+  var numWallNeighbors = [[]]
+  for (var x = 0; x < map.w; x++) {
+			for (var y = 0; y < map.h; y++) {
+				numWallNeighbors[x].push(countAliveNeighbours(x,y,map))
+			}
+    numWallNeighbors.push([])
+	}
+  // now apply the rules to each cell
+  for (var x = 0; x < map.w; x++) {
+		  for (var y = 0; y < map.h; y++) {
+        let neighbours = numWallNeighbors[x][y] // how many neighbours this cell has
 
-  for (var x=0; x<map.h; x++) {
-    for (var y=0; y<map.w; y++) {
-      let neighbours = countAliveNeighbours(x,y,map)
-
-      if (isWall(x,y,map)) {
-        // If a wall has less than 4 wall neighbors, then it becomes a floor
-        if (neighbours < 4) {
-          setFloor(x,y,newMap)
-        } else { // otherwise it stays a wall
-          setWall(x,y,newMap)
+        if (isWall(x,y,map)) {
+          if (neighbours < 4) {
+            setFloor(x,y,map.arr)
+          } else {
+            setWall(x,y,map.arr)
+          }
+        } else {
+          if (neighbours >= 5) {
+            setWall(x,y,map.arr)
+          } else {
+            setFloor(x,y,map.arr)
+          }
         }
-      } else {
-        // If a floor has 5 or more wall neighbors, then it becomes a wall.
-        if (neighbours >= 5) {
-          setWall(x,y,newMap)
-        } else { // otherwise it stays a floor
-          setFloor(x,y,newMap)
+        // If this cell is on the border set it to a wall
+        if (isOnBorder(x,y,map)) {
+          setWall(x,y,map.arr)
         }
-      }
-
-      if (isOnBorder(x,y,map)) {
-        setWall(x,y,newMap)
-      }
     }
   }
-  return newMap
 }
 
 
-var map = new Map(30,30)
+var map = new Map(100,100)
 for (var i = 0; i < numberofsteps; i++) {
-  map.arr = doSimulationStep(map)
+  doSimulationStep(map)
 }
 
-map.drawMap()
+
+//map.drawMap()
 /*
 */
