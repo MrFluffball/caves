@@ -43,7 +43,7 @@ class Sprite {
 let floorSprite = document.getElementById("floor")
 let wallSprite = document.getElementById("wall")
 
-var tilesize = 25
+var tilesize = 50
 /*
 class Tile {
   constructor(x, y) {

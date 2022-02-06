@@ -46,7 +46,7 @@ class Map {
   drawMap() {
     this.arr.forEach(i => {
       i.forEach(j => {
-        j.sprite.draw()
+        j.sprite.draw(j*tilesize,i*tilesize)
       })
     })
   }
@@ -109,6 +109,11 @@ function doSimulationStep(map) {
             setFloor(x,y,map.arr)
           }
         }
+        /*if (neighbours >= 5) {
+          setWall(x,y,map.arr)
+        } else {
+          setFloor(x,y,map.arr)
+        }*/
         // If this cell is on the border set it to a wall
         if (isOnBorder(x,y,map)) {
           setWall(x,y,map.arr)
@@ -123,7 +128,5 @@ for (var i = 0; i < numberofsteps; i++) {
   doSimulationStep(map)
 }
 
-
-//map.drawMap()
 /*
 */
