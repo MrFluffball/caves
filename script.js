@@ -4,13 +4,16 @@ class Game {
   }
 }
 
+let fps = 60
+
 let game = new Game()
+
 
 game.draw = function() {
   ctx.clearRect(0,0,canvas.height,canvas.width)
 
-  drawMap()
-  player.update()
+  player.moveUpdate()
+  render()
 
   window.requestAnimationFrame(game.draw)
 }

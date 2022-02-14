@@ -42,34 +42,40 @@ class Sprite {
 // Sprites
 let floorSprite = document.getElementById("floor")
 let wallSprite = document.getElementById("wall")
+let playerSprite = document.getElementById("player")
 
 var tilesize = 50
-/*
+
 class Tile {
   constructor(x, y) {
     this.x = x
     this.y = y
-    this.rect = new BoundingRect(x, y, 50, 50)
-    this.sprite = new Sprite(undefined, x, y, this.rect.w, this.rect.h, 0)
+    this.rect = new BoundingRect(x, y, tilesize, tilesize)
+    this.alpha = 0
   }
-}*/
+  drawMask(x,y) {
+    ctx.globalAlpha = this.alpha
+    ctx.fillStyle = "black"
+    ctx.fillRect(x,y,this.rect.w,this.rect.h)
+    // make sure to reset
+    ctx.globalAlpha = 1.00
+  }
+}
 
-class Floor {
+class Floor extends Tile {
   constructor(x, y) {
-    //super(Tile)
+    super(Tile)
     this.x = x
     this.y = y
-    this.rect = new BoundingRect(x, y, tilesize, tilesize)
     this.sprite = new Sprite(floorSprite, this.x, this.y, this.rect.w, this.rect.h, 0)
   }
 }
 
-class Wall {
+class Wall extends Tile {
   constructor(x, y) {
-    //super(Tile)
+    super(Tile)
     this.x = x
     this.y = y
-    this.rect = new BoundingRect(x, y, tilesize, tilesize)
     this.sprite = new Sprite(wallSprite, this.x, this.y, this.rect.w, this.rect.h, 0)
   }
 }

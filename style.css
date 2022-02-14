@@ -9,3 +9,11 @@ body {
   height: 100%;
   overflow: hidden;
 }
+
+#pos {
+  color: white;
+  position: fixed;
+  bottom: 430px;
+  right: 650px;
+  z-index: 99;
+}

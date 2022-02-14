@@ -65,7 +65,7 @@ function outOfBounds(x,y,map) { // returns if the position is within the map
   }
   return false
 }
-function countAliveNeighbours(x, y, map) { // returns the number of alive cells around a location
+function countNeighbours(x, y, map, type) { // returns the number of a type of cells around a location
   var count = 0
   coordinates.forEach((position, i) => {
     let newX = x + position[0]
@@ -73,7 +73,7 @@ function countAliveNeighbours(x, y, map) { // returns the number of alive cells 
 
     if (!outOfBounds(newX, newY, map)) {
       let mapobject = map.arr[newY][newX]
-      if (mapobject instanceof Wall) {
+      if (mapobject instanceof type) {
         count += 1
       }
     }
@@ -87,7 +87,7 @@ function doSimulationStep(map) {
   var numWallNeighbors = [[]]
   for (var x = 0; x < map.w; x++) {
 			for (var y = 0; y < map.h; y++) {
-				numWallNeighbors[x].push(countAliveNeighbours(x,y,map))
+				numWallNeighbors[x].push(countNeighbours(x,y,map,Wall)) // count walls
 			}
     numWallNeighbors.push([])
 	}
@@ -122,11 +122,12 @@ function doSimulationStep(map) {
   }
 }
 
-
-var map = new Map(100,100)
+var map = new Map(50,50)
 for (var i = 0; i < numberofsteps; i++) {
   doSimulationStep(map)
 }
+
+setTileBrightness(map)
 
 /*
 */
