@@ -50,15 +50,9 @@ class Tile {
   constructor(x, y) {
     this.x = x
     this.y = y
+    this.screenX = x
+    this.screenY = y
     this.rect = new BoundingRect(x, y, tilesize, tilesize)
-    this.alpha = 0
-  }
-  drawMask(x,y) {
-    ctx.globalAlpha = this.alpha
-    ctx.fillStyle = "black"
-    ctx.fillRect(x,y,this.rect.w,this.rect.h)
-    // make sure to reset
-    ctx.globalAlpha = 1.00
   }
 }
 

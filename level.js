@@ -35,12 +35,18 @@ function generateNoiseMap(width, height, chanceOfWall) {
   return arr
 }
 
-
-class Map {
+class Layer {
   constructor(w,h) {
     this.w = w
     this.h = h
-    this.arr = generateNoiseMap(this.w, this.h, initialchance)
+    this.arr = [[]]
+
+    for (var i=0; i<this.w; i++) {
+      for (var j=0; j<this.h; j++) {
+        this.arr[i].push(new Mask(0))
+      }
+      this.arr.push([])
+    }
   }
 
   drawMap() {
@@ -53,6 +59,23 @@ class Map {
 
   getTile(x,y) {
     return this.arr[x][y]
+  }
+}
+// Layers of the visible map
+class Map extends Layer {
+  constructor(w,h) {
+    super(Layer)
+    this.w = w
+    this.h = h
+    this.arr = generateNoiseMap(this.w, this.h, initialchance)
+  }
+}
+class Objects extends Layer {
+  constructor(w,h) {
+    super(Layer)
+    this.w = w
+    this.h = h
+    this.arr = generateNoiseMap(this.w, this.h, initialchance)
   }
 }
 
@@ -122,12 +145,16 @@ function doSimulationStep(map) {
   }
 }
 
-var map = new Map(50,50)
+var map = new Map(100,100)
+var objects_map = new Objects(100,100)
+
 for (var i = 0; i < numberofsteps; i++) {
   doSimulationStep(map)
 }
 
-setTileBrightness(map)
+let l_map = new LightingMap(map)
+l_map.setTileBrightness(map)
+//l_map.lights()
 
 /*
 */
