@@ -43,8 +43,11 @@ class Camera {
 
   // draws the player in the map
   follow() {
-    this.entity.screenX = this.w/2
-    this.entity.screenY = this.h/2
+    // lock the player
+    let gridwidth = Math.floor((this.w/tilesize)/2)
+    let gridheight = Math.floor((this.h/tilesize)/2)
+    this.entity.screenX = (gridwidth*tilesize)
+    this.entity.screenY = (gridheight*tilesize)
 
     // make the camera follow the sprite
     this.x = this.entity.x - this.w / 2;
@@ -110,42 +113,58 @@ class Player {
     this.h = tilesize
     this.speed = 7
 
+    this.old_x = this.yx
+    this.old_y = this.y
+
     this.rect = new BoundingRect(x, y, this.w, this.h)
     this.sprite = new Sprite(playerSprite, this.x, this.y, this.rect.w, this.rect.h, 0)
 
-      // triggers when the player has moved
-      // 'delegate' pattern
+    // triggers when the player has moved
+    // 'delegate' pattern
   }
 
-  collision(x,y) {
-    // Check a "ring" of tiles around the player and see if the player is within their bounding box
-    for (var k = 0; k < map.h; k++){
-      for (var l = 0; l < map.w; l++){
-          if (l >= 0 && k >= 0 && map.arr[l][k] instanceof Wall) {
-            let tile = map.arr[l][k]
-            if (x < tile.screenX + tile.rect.w &&
-               x + this.w > tile.screenX &&
-               y < tile.screenY + tile.rect.h &&
-               y + this.h > tile.screenY) {
-                 return true
-            }
-          }
-        }
-      }
-      return false
-    }
+  get bottom() { return this.y + this.h }
 
-  moveUpdate() {
-    if (rightPressed && !this.collision(this.x + this.speed, this.y)) {
+
+  isCollide(b) {
+    return (b.solid && (
+        ((this.y + this.h) < (b.y)) ||
+        (this.y > (b.y + b.h)) ||
+        ((this.x + this.w) < b.x) ||
+        (this.x > (b.x + b.w)))
+    );
+  }
+
+  collision(dx,dy) {
+    let newX = Math.floor(this.x/tilesize)
+    let newY = Math.floor(this.y/tilesize)
+
+    return (
+      this.isCollide(map.arr[newX-1][newY]) ||
+      this.isCollide(map.arr[newX+1][newY]) ||
+      this.isCollide(map.arr[newX][newY-1]) ||
+      this.isCollide(map.arr[newX][newY+1])
+    )
+    //document.getElementById("pos").innerText = Math.floor((this.x+dx)/tilesize) + ", " + Math.floor((this.y+dy)/tilesize) + "\ntoptile: " + (Math.floor((this.x+dx)/tilesize)) + ", " + (Math.floor((this.y+dy)/tilesize)-1)
+  }
+
+  moveUpdate(delta) {
+    if (rightPressed) {
+      if (!this.collision(this.speed, 0)) {
         this.x += this.speed;
-    }
-    else if (leftPressed && !this.collision(this.x - this.speed, this.y)) {
+      }
+    } else if (leftPressed) {
+      if (!this.collision(-this.speed, 0)) {
         this.x -= this.speed;
-    } else if (downPressed && !this.collision(this.x, this.y + this.speed)) {
+      }
+    } else if (downPressed) {
+      if (!this.collision(0, this.speed)) {
         this.y += this.speed;
-    }
-    else if (upPressed && !this.collision(this.x, this.y - this.speed)) {
+      }
+    } else if (upPressed) {
+      if (!this.collision(0, -this.speed)) {
         this.y -= this.speed;
+      }
     }
 
     var maxX = map.w * tilesize;
@@ -154,20 +173,14 @@ class Player {
     this.y = Math.max(0, Math.min(this.y, maxY));
   }
 
-  drawPlayer() {
+  draw() {
     this.sprite.draw(this.screenX, this.screenY)
   }
 }
 
 
 
-let player = new Player(1000,1000) // this doesn't work with floating points for some reason
+let player = new Player(500,500) // this doesn't work with floating points for some reason
 let camera = new Camera(player)
 
 //player.collision()
-
-function render() {
-  camera.follow()
-  camera.drawMap()
-  player.drawPlayer()
-}

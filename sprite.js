@@ -5,6 +5,7 @@ canvas.width = window.innerWidth;
 canvas.height = window.innerHeight;
 canvas.imageSmoothingEnabled = false
 
+var tilesize = 50
 
 class BoundingRect {
   constructor(x, y, w, h) {
@@ -44,8 +45,6 @@ let floorSprite = document.getElementById("floor")
 let wallSprite = document.getElementById("wall")
 let playerSprite = document.getElementById("player")
 
-var tilesize = 50
-
 class Tile {
   constructor(x, y) {
     this.x = x
@@ -53,6 +52,7 @@ class Tile {
     this.screenX = x
     this.screenY = y
     this.rect = new BoundingRect(x, y, tilesize, tilesize)
+    this.solid = false
   }
 }
 
@@ -71,5 +71,6 @@ class Wall extends Tile {
     this.x = x
     this.y = y
     this.sprite = new Sprite(wallSprite, this.x, this.y, this.rect.w, this.rect.h, 0)
+    this.solid = true
   }
 }

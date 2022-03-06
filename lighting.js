@@ -39,6 +39,7 @@ class LightingMap {
             var walls = 0
 
             var raycast = true
+            var found_floor = false
 
             var newX = x
             var newY = y
@@ -54,11 +55,14 @@ class LightingMap {
                   walls += 1
                 } else if (this.map.arr[newX][newY] instanceof Floor) {
                   //console.log(walls)
+                  found_floor = true
                   raycast = false
                 }
               }
             }
-            totalWallCounts.push(walls)
+            if (found_floor) {
+              totalWallCounts.push(walls)
+            }
           })
           this.arr[x][y].alpha = (Math.min.apply(null, totalWallCounts))*0.15
         }

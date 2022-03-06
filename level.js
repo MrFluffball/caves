@@ -58,7 +58,17 @@ class Layer {
   }
 
   getTile(x,y) {
-    return this.arr[x][y]
+    return this.arr[Math.floor(x/tilesize)][Math.floor(y/tilesize)]
+  }
+  isSolidTileAtXY(x,y) {
+    var col = Math.floor(x / tilesize);
+    var row = Math.floor(y / tilesize);
+    //console.log(row,col)
+
+    if (!outOfBounds(row, col, map)) {
+      //console.log(this.arr[row][col].constructor.name + " at x: " + row + ", y: " + col + " has state (" + this.arr[row][col].solid + ") ")
+      return (this.arr[row][col].solid)
+    }
   }
 }
 // Layers of the visible map

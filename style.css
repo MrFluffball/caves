@@ -11,9 +11,9 @@ body {
 }
 
 #pos {
-  color: white;
+  color: black;
   position: fixed;
-  bottom: 430px;
-  right: 650px;
+  bottom: 390px;
+  right: 670px;
   z-index: 99;
 }
