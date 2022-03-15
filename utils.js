@@ -1,6 +1,9 @@
 // NOTE:
 // Taken from https://stackoverflow.com/questions/7837456/how-to-compare-arrays-in-javascript
 
+let width = window.innerWidth
+let height = window.innerHeight
+
 Array.prototype.equals = function (array) {
     // if the other array is a falsy value, return
     if (!array)

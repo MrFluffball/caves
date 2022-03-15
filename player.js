@@ -30,20 +30,20 @@ class Camera {
   constructor(entity) {
     // who am I entity?
     this.entity = entity
-    this.w = 512
-    this.h = 512
+    this.w = 500
+    this.h = 500
     this.x = 0
     this.y = 0
 
     this.maxX = map.w * tilesize - this.w;
     this.maxY = map.h * tilesize - this.h;
 
-    console.log(Math.max(0, Math.min(this.x, this.maxX)), Math.max(0, Math.min(this.y, this.maxY)))
+    //console.log(Math.max(0, Math.min(this.x, this.maxX)), Math.max(0, Math.min(this.y, this.maxY)))
   }
 
   // draws the player in the map
   follow() {
-    // lock the player
+    /*// lock the player
     let gridwidth = Math.floor((this.w/tilesize)/2)
     let gridheight = Math.floor((this.h/tilesize)/2)
     this.entity.screenX = (gridwidth*tilesize)
@@ -68,38 +68,40 @@ class Camera {
     if (this.entity.y < this.h / 2 ||
         this.entity.y > this.maxY + this.h / 2) {
         this.entity.screenY = this.entity.y - this.y;
-    }
+    }*/
   }
 
-  drawMap(x,y) {
-    var startCol = Math.floor(this.x / tilesize)
-    var endCol = startCol + (this.w / tilesize)
-    var startRow = Math.floor(this.y / tilesize)
-    var endRow = startRow + (this.h / tilesize)
+  scrollTo(x,y) {
+    this.x = x //- this.w * 0.5
+    this.y = y //- this.h * 0.5
+    //console.log(this.x,this.y)
+  }
 
-    //var offsetX = -this.entity.x + startCol * tilesize
-    //var offsetY = -this.entity.y + startRow * tilesize
+  // TODO: ok i see the importance of putting stuff in the middle. lets do that
+  drawMap() {
+    // this bit scrolls to player pos
+    this.scrollTo(this.entity.x, this.entity.y)
 
-    for (var c = startCol; c <= endCol; c++) {
-      for (var r = startRow; r <= endRow; r++) {
-        var tile = map.arr[c][r]
-        var x = (c - startCol) * tilesize //+ offsetX
-        var y = (r - startRow) * tilesize //+ offsetY
+    var x_min = Math.floor(this.x / tilesize)
+    var y_min = Math.floor(this.y / tilesize)
+    var x_max = Math.ceil((this.x + this.w) / tilesize)
+    var y_max = Math.ceil((this.y + this.h) / tilesize)
 
-        //document.getElementById("pos").innerText = this.x + ", " + this.y
+    for (let x = x_min; x < x_max; x ++) {
+      for (let y = y_min; y < y_max; y ++) {
+        let tile_x = Math.floor(x * tilesize - this.x)
+        let tile_y = Math.floor(y * tilesize - this.y)
 
-        tile.screenX = Math.round(x)
-        tile.screenY = Math.round(y)
-        tile.sprite.draw(Math.round(x),Math.round(y))
-        l_map.arr[c][r].drawMask(Math.round(x),Math.round(y))
-
-        // mark boundaries (Not needed. Keep commented out.)
-        /*if (c == map.w-1 || c == 0 || r == map.h-1 || r == 0) {
-          ctx.fillStyle = "red"
-          ctx.fillRect(x,y,tilesize,tilesize)
-        }*/
+        if (!outOfBounds(x,y,map)) {
+          map.arr[x][y].sprite.draw(tile_x, tile_y)
+        }
       }
     }
+
+    this.entity.sprite.draw(this.w/2, this.h/2)
+
+    ctx.strokeStyle = "#ffffff"
+    ctx.strokeRect(0, 0, this.w, this.h)
   }
 }
 
@@ -111,10 +113,7 @@ class Player {
     this.screenY = 0
     this.w = tilesize
     this.h = tilesize
-    this.speed = 7
-
-    this.old_x = this.yx
-    this.old_y = this.y
+    this.easement = 0.05
 
     this.rect = new BoundingRect(x, y, this.w, this.h)
     this.sprite = new Sprite(playerSprite, this.x, this.y, this.rect.w, this.rect.h, 0)
@@ -147,49 +146,13 @@ class Player {
 
   // I feel like we should rely on pixel-perfect collisions instead of grids
   collision(dx,dy) {
-    let newX = this.x + dx
-    let newY = this.y + dy
 
-    let tile = map.getTile(newX, newY)
-
-    console.log(map.getTile(newX-tilesize, newY).solid)
-
-    return (
-      this.collisionWith(newX, newY, map.getTile(newX-tilesize, newY)) ||
-      this.collisionWith(newX, newY, map.getTile(newX+tilesize, newY)) ||
-      this.collisionWith(newX, newY, map.getTile(newX, newY-tilesize)) ||
-      this.collisionWith(newX, newY, map.getTile(newX, newY+tilesize))
-    )
     //document.getElementById("pos").innerText = Math.floor((this.x+dx)/tilesize) + ", " + Math.floor((this.y+dy)/tilesize) + "\ntoptile: " + (Math.floor((this.x+dx)/tilesize)) + ", " + (Math.floor((this.y+dy)/tilesize)-1)
   }
 
-  moveUpdate(delta) {
-    if (rightPressed) {
-      if (!this.collision(this.speed, 0)) {
-        this.x += this.speed;
-      }
-    } else if (leftPressed) {
-      if (!this.collision(-this.speed, 0)) {
-        this.x -= this.speed;
-      }
-    } else if (downPressed) {
-      if (!this.collision(0, this.speed)) {
-        this.y += this.speed;
-      }
-    } else if (upPressed) {
-      if (!this.collision(0, -this.speed)) {
-        this.y -= this.speed;
-      }
-    }
-
-    var maxX = map.w * tilesize;
-    var maxY = map.h * tilesize;
-    this.x = Math.max(0, Math.min(this.x, maxX));
-    this.y = Math.max(0, Math.min(this.y, maxY));
-  }
-
-  draw() {
-    this.sprite.draw(this.screenX, this.screenY)
+  moveTo(x,y) {
+    this.x += (x - this.x - tilesize) * this.easement
+    this.y += (y - this.y - tilesize) * this.easement
   }
 }
 
