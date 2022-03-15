@@ -126,24 +126,39 @@ class Player {
   get bottom() { return this.y + this.h }
 
 
-  isCollide(b) {
-    return (b.solid && (
+  /*isCollide(b) {
+    return !(
         ((this.y + this.h) < (b.y)) ||
         (this.y > (b.y + b.h)) ||
         ((this.x + this.w) < b.x) ||
-        (this.x > (b.x + b.w)))
+        (this.x > (b.x + b.w))
     );
+  }*/
+
+  collisionWith(x,y,b) {
+    if (b.solid) {
+      if ((b.x < x + this.w) && (b.x + b.w > x) &&
+          (b.y < y + this.h) && (b.y + b.h > y)) {
+           return true
+      }
+    }
+    return false
   }
 
+  // I feel like we should rely on pixel-perfect collisions instead of grids
   collision(dx,dy) {
-    let newX = Math.floor(this.x/tilesize)
-    let newY = Math.floor(this.y/tilesize)
+    let newX = this.x + dx
+    let newY = this.y + dy
+
+    let tile = map.getTile(newX, newY)
+
+    console.log(map.getTile(newX-tilesize, newY).solid)
 
     return (
-      this.isCollide(map.arr[newX-1][newY]) ||
-      this.isCollide(map.arr[newX+1][newY]) ||
-      this.isCollide(map.arr[newX][newY-1]) ||
-      this.isCollide(map.arr[newX][newY+1])
+      this.collisionWith(newX, newY, map.getTile(newX-tilesize, newY)) ||
+      this.collisionWith(newX, newY, map.getTile(newX+tilesize, newY)) ||
+      this.collisionWith(newX, newY, map.getTile(newX, newY-tilesize)) ||
+      this.collisionWith(newX, newY, map.getTile(newX, newY+tilesize))
     )
     //document.getElementById("pos").innerText = Math.floor((this.x+dx)/tilesize) + ", " + Math.floor((this.y+dy)/tilesize) + "\ntoptile: " + (Math.floor((this.x+dx)/tilesize)) + ", " + (Math.floor((this.y+dy)/tilesize)-1)
   }
