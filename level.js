@@ -1,6 +1,7 @@
 let initialchance = 0.50
 let numberofsteps = 12
 
+
 // NOTE: In this code, a Floor is considered "dead", while likewise a wall tile is "alive"
 
 

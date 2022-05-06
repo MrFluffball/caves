@@ -6,6 +6,7 @@ canvas.height = window.innerHeight;
 canvas.imageSmoothingEnabled = false
 
 var tilesize = 50
+var atlasTilesize = 16
 
 class BoundingRect {
   constructor(x, y, w, h) {
@@ -18,14 +19,14 @@ class BoundingRect {
 
 class Sprite {
   constructor(img, x, y, w, h) {
-    this.img = img
     this.x = x
     this.y = y
     this.w = w
     this.h = h
+    this.img = img
 
     this.draw = function(x,y) {
-      ctx.drawImage(img, x, y, this.w, this.h)
+      ctx.drawImage(this.img, x, y, this.w, this.h);
     }
     this.drawRotated = function(degrees){
       // save the unrotated context of the canvas so we can restore it later
@@ -34,16 +35,77 @@ class Sprite {
       ctx.translate(this.x,this.y);
       ctx.rotate(degrees*Math.PI/180); // rotate and draw
 
-      ctx.drawImage(this.img,-this.w/2,-this.w/2, this.w, this.h);
+      ctx.drawImage(tileAtlas,-this.w/2,-this.w/2, this.w, this.h);
       ctx.restore();
     }
   }
 }
 
+class TileSprite {
+  constructor(x, y, w, h, tilemapX, tilemapY) {
+    this.x = x
+    this.y = y
+    this.w = w
+    this.h = h
+    this.tilemapX = tilemapX
+    this.tilemapY = tilemapY
+
+    this.draw = function(x,y) {
+      ctx.imageSmoothingEnabled = false;
+      ctx.drawImage(tileAtlas, this.tilemapX * atlasTilesize + (this.tilemapX + 1), this.tilemapY*atlasTilesize + (this.tilemapY + 1), atlasTilesize, atlasTilesize, x, y, this.w, this.h)
+    }
+  }
+}
+
+// values to sync up animation
+var startDate = Date.now()
+var elapsedms = 0
+
+class AnimatedSprite  {
+  constructor(x, y, w, h, tilemapX, tilemapY, frame, fps, maxFrames) {
+    this.x = x
+    this.y = y
+    this.w = w
+    this.h = h
+    this.tilemapX = tilemapX
+    this.tilemapY = tilemapY
+    // for animations, we assume each row on the atlas is a sequence of frames.
+    // this means ( row, 0 ) frame is the orginal sprite
+    this.frames = frames
+    this.fps = fps
+    this.frame = 1
+    this.maxFrames = 3
+    //this.startDate = 0
+
+    this.draw = function(x,y) {
+      ctx.drawImage(tileAtlas, this.tilemapX + (100*(this.frame-1)), this.tilemapY, 100, 100, x, y, this.w, this.h)
+      // check if the right amount of time has passed to move to the next frame
+      //let lifespan = Date.now() - this.startDate
+
+      let frameTime = 1000/this.fps
+      for (var i = 0; i < this.maxFrames; i += 1) {
+        if (elapsedms >= frameTime*i) {
+          // update it accordingly
+          if (this.frame < this.maxFrames) { this.frame += 1 }
+          if (this.frame == this.maxFrames ) { this.frame = 1 }
+
+          //this.startDate = Date.now()
+        }
+      }
+    }
+  }
+}
+
+function updateAnimationCounter() {
+  if (Date.now() - startDate >= 1000) {
+    startDate = Date.now()
+  }
+  return elapsedms = Date.now() - startDate
+}
+
 // Sprites
-let floorSprite = document.getElementById("floor")
-let wallSprite = document.getElementById("wall")
-let playerSprite = document.getElementById("player")
+let tileAtlas = document.getElementById("tiles")
+//let playerSprite = document.getElementById("player")
 
 class Tile {
   constructor(x, y) {
@@ -61,7 +123,7 @@ class Floor extends Tile {
     super(Tile)
     this.x = x
     this.y = y
-    this.sprite = new Sprite(floorSprite, this.x, this.y, this.rect.w, this.rect.h, 0)
+      this.sprite = new TileSprite(this.x, this.y, this.rect.w, this.rect.h, 0, 0)
   }
 }
 
@@ -70,7 +132,7 @@ class Wall extends Tile {
     super(Tile)
     this.x = x
     this.y = y
-    this.sprite = new Sprite(wallSprite, this.x, this.y, this.rect.w, this.rect.h, 0)
+    this.sprite = new TileSprite(this.x, this.y, this.rect.w, this.rect.h, 1, 0)
     this.solid = true
   }
 }

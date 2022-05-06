@@ -1,5 +1,6 @@
 canvas {
   border: solid 1px black;
+  background-color: black;
 }
 
 .sprite {
@@ -14,6 +15,6 @@ body {
   color: black;
   position: fixed;
   bottom: 390px;
-  right: 670px;
+  right: 520px;
   z-index: 99;
 }

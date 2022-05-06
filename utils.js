@@ -29,3 +29,9 @@ Array.prototype.equals = function (array) {
 }
 // Hide method from for-in loops
 Object.defineProperty(Array.prototype, "equals", {enumerable: false});
+
+
+
+function getRandom(min, max) {
+  return Math.floor(Math.random() * (max - min) + min);
+}

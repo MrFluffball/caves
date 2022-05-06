@@ -10,18 +10,11 @@ let fps = 60
 
 let game = new Game()
 
-let pointer = { x:0, y:0 }
-
-canvas.addEventListener("click", (event) => {
-  pointer.x = event.pageX + game.camera.x - width + game.camera.w
-  pointer.y = event.pageY + game.camera.y - height + game.camera.h
-})
-
 game.update = function() {
+  updateAnimationCounter()
   game.camera.drawMap()
-  game.player.moveTo(pointer.x,pointer.y)
+  game.player.update()
 }.bind(Game)
-
 
 game.tick = function(elapsed) {
   window.requestAnimationFrame(game.tick);
@@ -31,7 +24,7 @@ game.tick = function(elapsed) {
     // clear previous frame
     ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-
+    //ctx.fillRect(line.x1 + (line.x2 - line.x1) * line.f,line.y1 + (line.y2 - line.y1) * line.f,10,10)
 
     game.update();
     //this.render();
