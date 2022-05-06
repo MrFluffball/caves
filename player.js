@@ -1,30 +1,28 @@
-var KeyboardHelper = { left: 37, up: 38, right: 39, down: 40 };
+let pointer = { x:0, y:0, dx:0, dy:0},
+line = {x1:0,y1:0,x2:0,y2:0,f:0}
 
-document.addEventListener('keydown', keyDownHandler, false);
-document.addEventListener('keyup', keyUpHandler, false);
-
-var rightPressed = false;
-var leftPressed = false;
-var upPressed = false;
-var downPressed = false;
-
-function keyDownHandler() {
-  if (event.keyCode == KeyboardHelper.left) {
-    leftPressed = true;
-  } else if (event.keyCode == KeyboardHelper.right) {
-    rightPressed = true;
-  } else if (event.keyCode == KeyboardHelper.up) {
-    upPressed = true;
-  } else if (event.keyCode == KeyboardHelper.down) {
-    downPressed = true;
-  }
+function slope(x1 , y1 , x2 , y2) {
+  if (x1 == x2)
+    return Number.MAX_VALUE;
+  return (y2 - y1) / (x2 - x1);
 }
-function keyUpHandler() {
-  rightPressed = false;
-  leftPressed = false;
-  upPressed = false;
-  downPressed = false;
-}
+
+canvas.addEventListener("click", (event) => {
+  var rect = canvas.getBoundingClientRect()
+
+  line.x1 = width * 0.5,
+  line.y1 = height,
+
+  line.x2 = event.clientX - rect.left,
+  line.y2 = event.clientY - rect.top,
+
+  // where we are on the line
+  line.f = 0
+
+  console.log(line.x1,line.x2,line.y1,line.y2,line.f)
+})
+
+
 
 class Camera {
   constructor(entity) {
@@ -151,8 +149,8 @@ class Player {
   }
 
   moveTo(x,y) {
-    this.x += (x - this.x - tilesize) * this.easement
-    this.y += (y - this.y - tilesize) * this.easement
+    this.x += (x - this.x - tilesize) * easement
+    this.y += (y - this.y - tilesize) * easement
   }
 }
 
